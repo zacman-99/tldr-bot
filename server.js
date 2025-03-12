@@ -1,28 +1,30 @@
+// server.js
+
 const express = require('express');
 const bodyParser = require('body-parser');
 
 const app = express();
+
+// Parse incoming JSON from Slack
 app.use(bodyParser.json());
 
-// This is the path Slack will send requests to:
-// e.g. https://your-app.onrender.com/slack/events
+// Slack events endpoint
 app.post('/slack/events', (req, res) => {
-  // 1. Slack will send a 'challenge' when verifying your endpoint
+  // Step 1: Slack verification
   if (req.body.type === 'url_verification') {
-    // We respond with the challenge so Slack knows we own this URL
-    return res.send({ challenge: req.body.challenge });
+    return res.json({ challenge: req.body.challenge });
   }
 
-  // 2. Later, Slack will send real events (like new messages) here
-  const event = req.body.event;
-  console.log('Received Slack event:', event);
+  // Step 2: Later, handle actual Slack events (like messages)
+  console.log('Received Slack event:', req.body.event);
 
-  // 3. For now, just respond with a 200 OK
+  // Return 200 OK so Slack knows we got it
   return res.status(200).send('Event received');
 });
 
-// Start the server
+// Start server on a port (Render sets process.env.PORT automatically)
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
+
