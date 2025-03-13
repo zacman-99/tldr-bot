@@ -41,8 +41,22 @@ app.post('/slack/events', async (req, res) => {
   if (req.body.type === 'url_verification') {
     return res.json({ challenge: req.body.challenge });
   }
-  {
-  // Otherwise, handle actual Slack events
-  const event = req.body.eve
 
-}
+  // Otherwise, handle actual Slack events
+  const event = req.body.event;
+  console.log('Received Slack event:', event);
+
+  // If the event is a user message (not a bot message), reply
+  if (event && event.type === 'message' && !event.bot_id) {
+    await postMessageToSlack(event.channel, "Hello from your Slack Bot!");
+  }
+
+  // Return 200 OK so Slack knows we received the event
+  return res.status(200).send('Event received');
+});
+
+// 5) Start the server on the port Render provides (or 3000 locally)
+const port = process.env.PORT || 3000;
+app.listen(port, () => {
+  console.log(`Server is running on port ${port}`);
+});
